@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table:Table
+	xmi:version="2.0"
+	xmlns:xmi="http://www.omg.org/XMI"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:table="platform:/resource/MetaModels/Table_MetaModel.ecore"
+	filename="birds">
+	<rows position="0">
+		<cells value="id" type="string"></cells>
+		<cells value="sci_name" type="string"></cells>
+		<cells value="name" type="string"></cells>
+		<cells value="total" type="integer"></cells>
+		<cells value="lat" type="string"></cells>
+		<cells value="long" type="string"></cells>
+		<cells value="zone_id" type="string"></cells>
+		<cells value="zone_name" type="string"></cells>
+		<cells value="date" type="string"></cells>
+	</rows>
+	<rows position="1">
+		<cells value="b001" type="string"></cells>
+		<cells value="Charadrius alexandrinus" type="string"></cells>
+		<cells value="Kentish Plover" type="string"></cells>
+		<cells value="4" type="integer"></cells>
+		<cells value="390.037.778" type="string"></cells>
+		<cells value="-0.1608038" type="string"></cells>
+		<cells value="L12411190" type="string"></cells>
+		<cells value="Playa de Ganda" type="string"></cells>
+		<cells value="10/08/1969" type="string"></cells>
+	</rows>
+	<rows position="2">
+		<cells value="b002" type="string"></cells>
+		<cells value="Hydrobates pelagicus" type="string"></cells>
+		<cells value="European Storm-Petrel" type="string"></cells>
+		<cells value="2" type="integer"></cells>
+		<cells value="394.106.560" type="string"></cells>
+		<cells value="-0.3313772" type="string"></cells>
+		<cells value="L16874384" type="string"></cells>
+		<cells value="Pinedo--Valencia" type="string"></cells>
+		<cells value="26/04/1970" type="string"></cells>
+	</rows>
+	<rows position="3">
+		<cells value="b003" type="string"></cells>
+		<cells value="Anas platyrhynchos" type="string"></cells>
+		<cells value="Mallard" type="string"></cells>
+		<cells value="4" type="integer"></cells>
+		<cells value="393.250.341" type="string"></cells>
+		<cells value="-0.3104308" type="string"></cells>
+		<cells value="L8960216" type="string"></cells>
+		<cells value="El Saler" type="string"></cells>
+		<cells value="15/11/1971" type="string"></cells>
+	</rows>
+	<rows position="4">
+		<cells value="b004" type="string"></cells>
+		<cells value="Chroicocephalus ridibundus" type="string"></cells>
+		<cells value="Black-headed Gull" type="string"></cells>
+		<cells value="4 " type="integer"></cells>
+		<cells value="376.359.578" type="string"></cells>
+		<cells value="-0.7192612" type="string"></cells>
+		<cells value="L4548723" type="string"></cells>
+		<cells value="Salinas de Marchamalo" type="string"></cells>
+		<cells value="09/10/1982" type="string"></cells>
+	</rows>	
+</table:Table>

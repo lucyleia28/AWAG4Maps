@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<maps:Maps xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:maps="platform:/resource/MetaModels/Map_MetaModel.ecore">
+  <layers name="birds">
+    <data lat="lat" long="long"/>
+    <data lat="390.037.778" long="-0.1608038"/>
+    <data lat="394.106.560" long="-0.3313772"/>
+    <data lat="393.250.341" long="-0.3104308"/>
+    <data lat="376.359.578" long="-0.7192612"/>
+  </layers>
+</maps:Maps>
