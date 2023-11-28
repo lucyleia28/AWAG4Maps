@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-14">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="res/libs/atl-emftvm-fatjar.jar"/>
+	<classpathentry kind="lib" path="res/libs/java-json.jar"/>
+	<classpathentry kind="lib" path="res/libs/MTCLauncherJava.jar"/>
+	<classpathentry kind="lib" path="res/libs/opencsv-5.1.jar"/>
+	<classpathentry kind="lib" path="res/libs/swagger-codegen-cli-2.2.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
