@@ -106,6 +106,37 @@ p {
     font-weight: normal;
 }
 
+#contenedorBotonesLateral {
+    margin: 20px 0 20px 0;
+}
+
+#contenedorBotonesLateral input[type=radio] {
+    display: none;
+}
+
+#contenedorBotonesLateral label {
+    background-color: #F9F9F9;
+    padding: 10px;
+    border-radius: 5px;
+    border: solid 2px #D5D8DC;
+    margin: 0 5px 0 0;
+}
+
+#contenedorBotonesLateral label:hover {
+    cursor: pointer;
+    background-color: #90BDFA;
+    border-color: #90BDFA;
+    color: #F9F9F9;
+}
+
+#contenedorBotonesLateral input[type=radio]:checked+label {
+    background-color: #388BFC;
+    padding: 10px;
+    border-radius: 5px;
+    color: #F9F9F9;
+    border-color: #388BFC;
+}
+
 
 /* Avistamientos en el mapa */
 
