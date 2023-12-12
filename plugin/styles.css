@@ -107,7 +107,8 @@ p {
 }
 
 #contenedorBotonesLateral {
-    margin: 20px 0 20px 0;
+    margin: 0;
+    display: flex;
 }
 
 #contenedorBotonesLateral input[type=radio] {
@@ -123,10 +124,13 @@ p {
 }
 
 #contenedorBotonesLateral label:hover {
-    cursor: pointer;
-    background-color: #90BDFA;
-    border-color: #90BDFA;
-    color: #F9F9F9;
+    background-color: #F9F9F9;
+    padding: 10px;
+    border-radius: 5px;
+    border: solid 2px #D5D8DC;
+    margin: 0 5px 0 0;
+    width: 70px;
+    text-align: center;
 }
 
 #contenedorBotonesLateral input[type=radio]:checked+label {
