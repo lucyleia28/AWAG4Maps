@@ -60,9 +60,7 @@ div#listadoZonas {
 }
 
 #contenedorBotones {
-    margin: 0 0 20px 0;
-    display: flex;
-    flex-direction: column;
+    margin: 20px 0 20px 0;
 }
 
 #contenedorBotones input[type=radio] {
@@ -74,7 +72,7 @@ div#listadoZonas {
     padding: 10px;
     border-radius: 5px;
     border: solid 2px #D5D8DC;
-    margin: 2.5px 0 2.5px 0;
+    margin: 0 5px 0 0;
 }
 
 #contenedorBotones label:hover {
