@@ -121,16 +121,15 @@ p {
     border-radius: 5px;
     border: solid 2px #D5D8DC;
     margin: 0 5px 0 0;
+    width: 70px;
+    text-align: center;
 }
 
 #contenedorBotonesLateral label:hover {
-    background-color: #F9F9F9;
-    padding: 10px;
-    border-radius: 5px;
-    border: solid 2px #D5D8DC;
-    margin: 0 5px 0 0;
-    width: 70px;
-    text-align: center;
+    cursor: pointer;
+    background-color: #90BDFA;
+    border-color: #90BDFA;
+    color: #F9F9F9;
 }
 
 #contenedorBotonesLateral input[type=radio]:checked+label {
