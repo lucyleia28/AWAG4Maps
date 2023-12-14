@@ -364,7 +364,9 @@ div#graficaContenido {
 }
 
 #registrosColumnas {
-    margin: 27px 20px 3px 0;
+    margin: 17px 20px 7px 0;
+    background-color: bisque;
+    padding: 5px 0;
 }
 
 #registros {
@@ -378,7 +380,12 @@ div#graficaContenido {
 
 .rows {
     display: flex;
-    margin: 3px 0;
+    padding: 10px 0;
+}
+
+
+.rows.darkBackground {
+    background-color: linen;
 }
 
 .rows>div{
