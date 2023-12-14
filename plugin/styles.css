@@ -364,11 +364,24 @@ div#graficaContenido {
 }
 
 #registros {
-    width: 760px;
     height: 400px;
-    margin: 20px auto;
+    margin: 0 auto;
     display: flex;
+    flex-direction: column;
     overflow-y: scroll;
     box-shadow: 2px 2px 0 0 #D5D8DC;
-    font-size: 13px;
+}
+
+.rows {
+    display: flex;
+    margin: 3px 0;
+}
+
+.rows>div{
+    margin: auto;
+}
+
+.rows>div.value {
+    width: 60px;
+    text-aling: center;
 }
