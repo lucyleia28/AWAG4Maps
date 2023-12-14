@@ -379,16 +379,14 @@ div#graficaContenido {
 
 .rows>div{
     margin: auto;
+    width: 60px;
+    text-aling: center;
 }
 
 .rows.main>div {
-    width: 100px;
+    width: 60px;
 }
 
-.rows.main>div.idubication {
+.rows>div.idubication {
     width: 420px;
-}
-.rows>div.value {
-    width: 60px;
-    text-aling: center;
 }
