@@ -362,3 +362,13 @@ div#graficaContenido {
     display: flex;
     margin: auto;
 }
+
+#registros {
+    width: 760px;
+    height: 400px;
+    margin: 20px auto;
+    display: flex;
+    overflow-y: scroll;
+    box-shadow: 2px 2px 0 0 #D5D8DC;
+    font-size: 13px;
+}
