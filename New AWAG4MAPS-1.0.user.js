@@ -1148,7 +1148,7 @@ async function getSensorsInfo(map, markers, date, layer) {
 // Funcion dibujar sensores
 function getSensors(map, markers, data) {
     let total = 0, media = 0;
-    let name = "", lastDate = "", lat = "", long = "", units = "", others;
+    let name = "", lastDate = "", lat = "", long = "", units = "", others = "";
     let allRegisters = [];
     data.forEach(register => {
         if (register) {
