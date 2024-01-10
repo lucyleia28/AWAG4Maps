@@ -124,21 +124,21 @@ p {
 }
 
 
-/* Avistamientos en el mapa */
+/* Birdwatching */
 
-div#listadoAvistamientos {
+div#birdwatchingList {
     margin-bottom: 8px;
 }
 
-.avistamiento {
+.birdwatching {
     display: flex;
 }
 
-.avistamientoTitulo {
+.birdwatchingTitle {
     font-weight: initial;
 }
 
-.avistamientoItem {
+.birdwatchingItem {
     position: relative;
     margin: 0 0.5rem 0 0;
     min-height: 1.2rem;
@@ -172,53 +172,6 @@ div#listadoAvistamientos {
 #buttonsContent input[type=checkbox] {
     display: none;
 }
-
-/*button.waterState {
-    background-color: #388BFC;
-    padding: 10px;
-    color: #F9F9F9;
-    border-color: #388BFC;
-    border-radius: 5px;
-    border: solid 2px #388BFC;
-    margin: 0 5px 0 0;
-}
-
-button.waterState:hover {
-    cursor: pointer;
-    background-color: #90BDFA;
-    border-color: #90BDFA;
-    color: #F9F9F9;
-}*/
-
-/*#botonesGraficas {
-    margin-bottom: 20px;
-}
-
-#botonesGraficasLateral {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    grid-gap: 5px;
-    margin-bottom: 20px;
-}*/
-
-/*a#datosAbiertos {
-    background-color: #388BFC;
-    padding: 10px;
-    color: #F9F9F9;
-    border-color: #388BFC;
-    border-radius: 5px;
-    border: solid 2px #388BFC;
-    margin: 0 5px 0 0;
-}
-
-a#datosAbiertos:hover {
-    cursor: pointer;
-    background-color: #90BDFA;
-    border-color: #90BDFA;
-    color: #F9F9F9;
-    text-decoration: none;
-}*/
-
 
 /* Wikipedia */
 
@@ -256,7 +209,7 @@ a#datosAbiertos:hover {
 }
 
 
-/* Marcadores */
+/* Markers */
 
 .marker-cluster-max span {
     color: white;
@@ -264,7 +217,7 @@ a#datosAbiertos:hover {
 }
 
 
-/* Fondo modal: negro con opacidad al 50% */
+/* Modal */
 
 .modal {
     display: none;
