@@ -1,31 +1,14 @@
-/* Mapa General */
+/* General Map */
 
-#mapaGeneral {
-    /*display: grid;
-    grid-template-columns: auto auto;*/
+#generalMap {
     display: flex;
 }
-
-
-/*#map {
-    border: solid .2em #D0D4D8;
-    height: 70em;
-    width: 55em;
-}*/
 
 #map {
     border: solid 0.2em #D0D4D8;
     height: 70em;
     width: 50em;
 }
-
-
-/*#info {
-    background-color: #F9F9F9;
-    border: solid #D0D4D8;
-    width: 50em;
-    max-height: 59.9em;
-}*/
 
 #info {
     background-color: #F9F9F9;
@@ -42,7 +25,7 @@
     margin-top: 20px;
 }
 
-div#listadoAves {
+div#birdList {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     grid-gap: 5px;
@@ -52,22 +35,22 @@ div#listadoAves {
     box-shadow: 2px 2px 0 0 #D5D8DC;
 }
 
-div#listadoZonas {
+div#zoneList {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     grid-gap: 5px;
     margin-bottom: 20px;
 }
 
-#contenedorBotones {
+#buttonsContent {
     margin: 20px 0 20px 0;
 }
 
-#contenedorBotones input[type=radio] {
+#buttonsContent input[type=radio] {
     display: none;
 }
 
-#contenedorBotones label {
+#buttonsContent label {
     background-color: #F9F9F9;
     padding: 10px;
     border-radius: 5px;
@@ -75,14 +58,14 @@ div#listadoZonas {
     margin: 0 5px 0 0;
 }
 
-#contenedorBotones label:hover {
+#buttonsContent label:hover {
     cursor: pointer;
     background-color: #90BDFA;
     border-color: #90BDFA;
     color: #F9F9F9;
 }
 
-#contenedorBotones input[type=radio]:checked+label {
+#buttonsContent input[type=radio]:checked+label {
     background-color: #388BFC;
     padding: 10px;
     border-radius: 5px;
@@ -91,14 +74,14 @@ div#listadoZonas {
 }
 
 
-/* Mapa lateral */
+/* Lateral Map */
 
-div#listadoZonasLateral {
+div#zoneListLateral {
     display: grid;
     grid-gap: 5px;
 }
 
-div#listadoZonasLateral>label {
+div#zoneListLateral>label {
     font-weight: initial;
 }
 
@@ -106,16 +89,16 @@ p {
     font-weight: normal;
 }
 
-#contenedorBotonesLateral {
+#buttonsContentLateral {
     margin: 0;
     display: flex;
 }
 
-#contenedorBotonesLateral input[type=radio] {
+#buttonsContentLateral input[type=radio] {
     display: none;
 }
 
-#contenedorBotonesLateral label {
+#buttonsContentLateral label {
     background-color: #F9F9F9;
     padding: 10px 0;
     border-radius: 5px;
@@ -125,14 +108,14 @@ p {
     text-align: center;
 }
 
-#contenedorBotonesLateral label:hover {
+#buttonsContentLateral label:hover {
     cursor: pointer;
     background-color: #90BDFA;
     border-color: #90BDFA;
     color: #F9F9F9;
 }
 
-#contenedorBotonesLateral input[type=radio]:checked+label {
+#buttonsContentLateral input[type=radio]:checked+label {
     background-color: #388BFC;
     padding: 10px;
     border-radius: 5px;
@@ -163,34 +146,34 @@ div#listadoAvistamientos {
     display: flex;
 }
 
-.rojo {
+.red {
     background-color: #E33B15;
 }
 
-.naranja {
+.orange {
     background-color: #E57701;
 }
 
-.amarillo {
+.yellow {
     background-color: #FAC500;
 }
 
-.verde {
+.green {
     background-color: #C7E466;
 }
 
-.gris {
+.gray {
     background-color: #8F9CA0;
 }
 
 
 /* Estado del agua */
 
-#contenedorBotones input[type=checkbox] {
+#buttonsContent input[type=checkbox] {
     display: none;
 }
 
-button.estadoAgua {
+/*button.waterState {
     background-color: #388BFC;
     padding: 10px;
     color: #F9F9F9;
@@ -200,14 +183,14 @@ button.estadoAgua {
     margin: 0 5px 0 0;
 }
 
-button.estadoAgua:hover {
+button.waterState:hover {
     cursor: pointer;
     background-color: #90BDFA;
     border-color: #90BDFA;
     color: #F9F9F9;
-}
+}*/
 
-#botonesGraficas {
+/*#botonesGraficas {
     margin-bottom: 20px;
 }
 
@@ -216,9 +199,9 @@ button.estadoAgua:hover {
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     grid-gap: 5px;
     margin-bottom: 20px;
-}
+}*/
 
-a#datosAbiertos {
+/*a#datosAbiertos {
     background-color: #388BFC;
     padding: 10px;
     color: #F9F9F9;
@@ -234,7 +217,7 @@ a#datosAbiertos:hover {
     border-color: #90BDFA;
     color: #F9F9F9;
     text-decoration: none;
-}
+}*/
 
 
 /* Wikipedia */
@@ -285,31 +268,21 @@ a#datosAbiertos:hover {
 
 .modal {
     display: none;
-    /* Por defecto, estará oculto */
     position: fixed;
-    /* Posición fija */
     z-index: 1000;
-    /* Se situará por encima de otros elementos de la página*/
     padding-top: 200px;
-    /* El contenido estará situado a 200px de la parte superior */
     left: 0;
     top: 0;
     width: 100%;
-    /* Ancho completo */
     height: 100%;
-    /* Algura completa */
     overflow: auto;
-    /* Se activará el scroll si es necesario */
     background-color: rgba(0, 0, 0, 0.5);
-    /* Color negro con opacidad del 50% */
 }
 
-.modalContenido {
+.modalContent {
     position: relative;
-    /* Relativo con respecto al contenedor -modal- */
     background-color: white;
     margin: auto;
-    /* Centrada */
     padding: 20px;
     width: 60%;
     -webkit-animation-name: animarsuperior;
@@ -343,7 +316,7 @@ a#datosAbiertos:hover {
     }
 }
 
-.modalCerrar {
+.modalClose {
     color: black;
     float: right;
     font-size: 30px;
@@ -351,25 +324,25 @@ a#datosAbiertos:hover {
     cursor: pointer;
 }
 
-.modalCerrar:hover,
-.modalCerrar:focus {
+.modalClose:hover,
+.modalClose:focus {
     color: #000;
     text-decoration: none;
     cursor: pointer;
 }
 
-div#graficaContenido {
+div#graphContent {
     display: flex;
     margin: auto;
 }
 
-#registrosColumnas {
+#columnRegisters {
     margin: 17px 20px 0 0;
     background-color: bisque;
     padding: 5px 0;
 }
 
-#registros {
+#registers {
     height: 400px;
     margin: 0 auto;
     display: flex;
