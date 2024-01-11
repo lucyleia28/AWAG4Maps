@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AWAG4MAPS
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      1.0
 // @description  Introduce un mapa con los avistamientos de aves registrados en el mar Menor. También muestra datos abiertos sobre el estado del agua de la laguna.
 // @author       Paula González Martínez
 // @match        https://es.wikipedia.org/*
