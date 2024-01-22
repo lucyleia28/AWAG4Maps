@@ -1119,7 +1119,7 @@ function addRegisters(values) {
     var classname = "darkBackground";
     for (let i in values.all) {
         if(i == 0){
-           document.getElementById("columnRegisters").innerHTML = "<div class='rows main'><div>Name</div><div>Id</div><div>Latitude</div><div>Longitude</div><div>Value</div><div>Units</div><div>Date</div><div>Sensor</div><div>Altitude</div></div>";
+           document.getElementById("columnRegisters").innerHTML = "<div class='rows main'><div>Name</div><div>Id</div><div>Latitude</div><div>Longitude</div><div>Value</div><div>Units</div><div>Date</div><div>Others</div></div>";
         }
         if(i%2 == 0){
             classname = "clearBackground";
@@ -1128,7 +1128,7 @@ function addRegisters(values) {
             classname = "darkBackground";
         }
         let value = values.all[i];
-        registers += "<div class='rows " + classname + "'><div>" + value.name + "</div><div>" + value.id + "</div><div>" + value.lat + "</div><div>" + value.long + "</div><div>" + value.value + "</div><div>" + value.units + "</div><div>" + value.date + "</div><div>" + value.sensor + "</div><div>" + value.altitude + "</div></div>";
+        registers += "<div class='rows " + classname + "'><div>" + value.name + "</div><div>" + value.id + "</div><div>" + value.lat + "</div><div>" + value.long + "</div><div>" + value.value + "</div><div>" + value.units + "</div><div>" + value.date + "</div><div>" + value.others + "</div></div>";
     }
     document.getElementById("registers").innerHTML = registers;
 }
