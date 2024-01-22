@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         New AWAG4MAPS
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      4.0
 // @description  Introduces a map with bird sightings recorded in the Mar Menor. It also shows open data on the state of the lagoon water.
 // @author       Paula Gonzalez Martinez
 // @match        https://es.wikipedia.org/*
@@ -45,13 +45,13 @@ loadScript("https://raw.githubusercontent.com/lucyleia28/AWAG4Maps/main/plugin/L
 // General values
 var pathname = window.location.pathname;
 const list_pathname = await getLists("pathName");
-const marMenor_pathname = "/wiki/Mar_Menor";
+const specific_pathname = "/wiki/Mar_Menor";
 
 if (list_pathname.includes(pathname)) {
     let mapContainer = createLateralMapContainer();
     createMap("specific", mapContainer);
 }
-else if(pathname.includes(marMenor_pathname)){
+else if(pathname.includes(specific_pathname)){
     let mapContainer = createGeneralMapContainer();
     createMap("general", mapContainer);
 }
@@ -125,7 +125,7 @@ async function createMap(type, mapContainer){
         }
     });
 
-    var markersSensors = L.markerClusterGroup({
+    var markersSecondaryLayer = L.markerClusterGroup({
         iconCreateFunction: function(cluster) {
             var childCount = cluster.getChildCount();
             var containerStyle = 'width: 10px; height: 10px;';
@@ -133,7 +133,7 @@ async function createMap(type, mapContainer){
 
             return new L.DivIcon({
                 html: '<div style="' + containerStyle + '"><div style="' + contentStyle + '"><span style="margin-top: 50px;">Sensors</span></div></div>',
-                className: "sensor",
+                className: "secondaryLayer",
                 iconSize: new L.Point(10, 10)
             });
         }
@@ -142,32 +142,32 @@ async function createMap(type, mapContainer){
     addVisualGuide();
 
     const regionCode = await getLists("regionCode");
-    const birdList = document.getElementById("birdList");
+    const pointNamesList = document.getElementById("pointNamesList");
     let observationPeriod = document.querySelector('input[name="period"]:checked').value;
     let period = document.getElementsByName("period");
-    let zoneList = "";
+    let pointLocationsList = "";
     let heatMap = document.getElementById("heatMap");
+    let layer = "";
 
     switch (type) {
             case "specific":
-            var speciesName = getSpeciesName();
-            getBirds(map, markers, regionCode, observationPeriod, speciesName);
-            setZoneList(map, markers, regionCode, observationPeriod, speciesName);
+            var pointNames = getPointNames();
+            getMainLayer(map, markers, regionCode, observationPeriod, pointNames);
+            setPointLocationsList(map, markers, regionCode, observationPeriod, pointNames);
             for (var i = 0; i < period.length; i++) {
                 period[i].addEventListener("change", function() {
                     var selectedValue = document.querySelector('input[name="period"]:checked').value;
-                    updateDate(map, markers, markersSensors, regionCode, selectedValue, "specific");
+                    updateDate(map, markers, markersSecondaryLayer, regionCode, selectedValue, "specific");
                     deselectHeatMap(map);
                 });
             }
-            zoneList = document.getElementById("zoneListLateral");
-            zoneList.addEventListener("change", function(event) {
-                if (event.target.classList.contains("check_zones")) {
+            pointLocationsList = document.getElementById("pointLocationsListLateral");
+            pointLocationsList.addEventListener("change", function(event) {
+                if (event.target.classList.contains("check_pointLocations")) {
                     uptadeMarkers(map, markers, regionCode, document.querySelector('input[name="period"]:checked').value, "specific-zones");
                 }
             });
-            var layer = "";
-            getSensorsInfo(map, markersSensors, observationPeriod, layer);
+            getLayerInfo(map, markersSecondaryLayer, observationPeriod, layer);
             heatMap.addEventListener("change", function() {
                 if (this.checked) {
                     addHeatMap(map, markers, regionCode, document.querySelector('input[name="period"]:checked').value, "specific");
@@ -177,28 +177,27 @@ async function createMap(type, mapContainer){
             });
             break;
         case "general":
-            getAllBirds(map, markers, regionCode, observationPeriod);
-            setLists(map, markers, regionCode, observationPeriod, "birds-zones");
-            birdList.addEventListener("change", function(event) {
-                if (event.target.classList.contains("check_birds")) {
-                    uptadeMarkers(map, markers, regionCode, document.querySelector('input[name="period"]:checked').value, "birds");
+            getAllMainLayers(map, markers, regionCode, observationPeriod);
+            setLists(map, markers, regionCode, observationPeriod, "pointNames-pointLocations");
+            pointNamesList.addEventListener("change", function(event) {
+                if (event.target.classList.contains("check_pointNames")) {
+                    uptadeMarkers(map, markers, regionCode, document.querySelector('input[name="period"]:checked').value, "pointNames");
                 }
             });
-            zoneList = document.getElementById("zoneList");
-            zoneList.addEventListener("change", function(event) {
-                if (event.target.classList.contains("check_zones")) {
-                    uptadeMarkers(map, markers, regionCode, document.querySelector('input[name="period"]:checked').value, "zones");
+            pointLocationsList = document.getElementById("pointLocationsList");
+            pointLocationsList.addEventListener("change", function(event) {
+                if (event.target.classList.contains("check_pointLocations")) {
+                    uptadeMarkers(map, markers, regionCode, document.querySelector('input[name="period"]:checked').value, "pointLocations");
                 }
             });
             for (var j = 0; j < period.length; j++) {
                 period[j].addEventListener("change", function() {
                     var selectedValue = document.querySelector('input[name="period"]:checked').value;
-                    updateDate(map, markers, markersSensors, regionCode, selectedValue, "general");
+                    updateDate(map, markers, markersSecondaryLayer, regionCode, selectedValue, "general");
                     deselectHeatMap(map);
                 });
             }
-            var layer = "";
-            getSensorsInfo(map, markersSensors, observationPeriod, layer);
+            getLayerInfo(map, markersSecondaryLayer, observationPeriod, layer);
             heatMap.addEventListener("change", function() {
                 if (this.checked) {
                     addHeatMap(map, markers, regionCode, document.querySelector('input[name="period"]:checked').value, "general");
@@ -234,7 +233,7 @@ function createLateralMapContainer(){
     let infoContainer = document.createElement("div");
     infoContainer.id = "infoLateral";
     infoContainer.innerHTML = `<h3>Sighting areas</h3>
-                               <div id="zoneListLateral"></div>
+                               <div id="pointLocationsListLateral"></div>
                                <h3>Date of sightings</h3>
                                <div id="buttonsContentLateral">
                                    <input type="radio" id="date2years" class="date" name="period" value="2years"/>
@@ -245,7 +244,7 @@ function createLateralMapContainer(){
                                    <label for="date6months" class="boton">Last 6 months</label>
                                </div>
                                <h3>Number of sightings</h3>
-                               <div id="birdwatchingList"></div>
+                               <div id="mainLayerList"></div>
                                <input id="heatMap" type="checkbox" name="calor" style="margin-bottom: 20px;"/> Show heat map`;
 
     let modal = document.createElement("div");
@@ -257,12 +256,13 @@ function createLateralMapContainer(){
     return mapContainer;
 }
 function createGeneralMapContainer(){
-    /*---------- WIKIPEDIA UPDATE 12/2023 ----------*/
+    /*---------- WIKIPEDIA UPDATE 01/2024 ----------*/
     const pageContainer = document.querySelector(".mw-page-container");
     pageContainer.style.margin = "0 auto";
     pageContainer.style.display = "flex";
     pageContainer.style.width = "100%";
-    var element = document.querySelector('.vector-feature-zebra-design-enabled .mw-body');
+    pageContainer.style.maxWidth= "100%";
+    var element = document.querySelector('.mw-body');
     if (element) {
         if (window.matchMedia("(min-width: 1000px)").matches) {
             element.style.display = 'grid';
@@ -276,17 +276,15 @@ function createGeneralMapContainer(){
     }
     const header = document.querySelector(".vector-header");
     header.style.maxWidth= "100%";
-    const body = document.querySelector(".vector-feature-zebra-design-enabled .mw-page-container");
-    body.style.maxWidth= "100%";
 
     const h2Elements = document.getElementsByTagName('h2');
     const firstElementH2 = h2Elements[1];
-    const birdwatchingSection = document.createElement("div");
-    birdwatchingSection.id = "birdwatching_section";
-    firstElementH2.parentNode.insertBefore(birdwatchingSection, firstElementH2);
+    const mainLayerSection = document.createElement("div");
+    mainLayerSection.id = "mainLayer_section";
+    firstElementH2.parentNode.insertBefore(mainLayerSection, firstElementH2);
     /*--------------------------------------------------------------------------*/
     let title = document.createElement("h2");
-    title.innerHTML = '<span class="mw-headline" id="birdwatching">Bird watching in the Mar Menor</span><span class="mw-editsection"></span>';
+    title.innerHTML = '<span class="mw-headline" id="mainLayer">Bird watching in the Mar Menor</span><span class="mw-editsection"></span>';
     let mapContainer = document.createElement("div");
     mapContainer.id = "map";
     let infoContainer = document.createElement("div");
@@ -294,9 +292,9 @@ function createGeneralMapContainer(){
     let infoElements = document.createElement("div");
     infoElements.id = "infoElements";
     infoElements.innerHTML = `<h3>Sighting areas</h3>
-                               <div id="zoneList"></div>
+                               <div id="pointLocationsList"></div>
                                <h3>Species sighted</h3>
-                               <div id="birdList"></div>
+                               <div id="pointNamesList"></div>
                                <h3>Date of sightings</h3>
                                <div id="buttonsContent">
                                    <input type="radio" id="date2years" class="date" name="period" value="2years"/>
@@ -307,7 +305,7 @@ function createGeneralMapContainer(){
                                    <label for="date6months" class="boton">Last 6 months</label>
                                </div>
                                <h3>Number of sightings</h3>
-                               <div id="birdwatchingList"></div>
+                               <div id="mainLayerList"></div>
                                <input id="heatMap" type="checkbox" name="calor" style="margin-bottom: 20px;"/> Show heat map`;
     infoContainer.appendChild(infoElements);
 
@@ -320,7 +318,7 @@ function createGeneralMapContainer(){
     let modal = document.createElement("div");
     modal.id = "graph";
 
-    let seccion = document.getElementById("birdwatching_section");
+    let seccion = document.getElementById("mainLayer_section");
     seccion.appendChild(title);
     seccion.appendChild(generalMap);
     seccion.appendChild(info);
@@ -390,87 +388,87 @@ async function getLists(type) {
     }
 }
 async function setLists(map, markers, regionCode, date, type) {
-    var data = await getAllBirdsInfo(map, markers, regionCode, date);
+    var data = await getAllMainLayersInfo(map, markers, regionCode, date);
     var species = [];
     var regions = [];
     switch (type) {
-        case "birds-zones":
+        case "pointNames-pointLocations":
             species = [];
             regions = [];
             data.forEach(observation => {
                 var idSpecies = observation.sciname.replace(" ", "").toLowerCase();
                 if(!species.includes(idSpecies) && observation.value > 0){
                     species.push(idSpecies);
-                    document.getElementById("birdList").innerHTML += `<label>
-                                                                 <input type="checkbox" id="${idSpecies}" name="birds" class="check_birds" \> ${observation.sciname}
+                    document.getElementById("pointNamesList").innerHTML += `<label>
+                                                                 <input type="checkbox" id="${idSpecies}" name="pointNames" class="check_pointNames" \> ${observation.sciname}
                                                                  <span class="checkmark"></span>
                                                                  </label>`;
                 }
                 var idRegion = observation.idubication.toLowerCase();
                 if(!regions.includes(idRegion) && observation.value > 0){
                     regions.push(idRegion);
-                    document.getElementById("zoneList").innerHTML += `<label>
-                                                                 <input type="checkbox" id="${idRegion}" name="zones" class="check_zones" \> ${observation.ubication}
+                    document.getElementById("pointLocationsList").innerHTML += `<label>
+                                                                 <input type="checkbox" id="${idRegion}" name="pointLocations" class="check_pointLocations" \> ${observation.ubication}
                                                                  <span class="checkmark"></span>
                                                                  </label>`;
                 }
             });
             if (regions.length < 1 && species.length < 1) {
-                document.getElementById("zoneList").innerHTML = `<label>No observations have been recorded on this date</label>`;
-                document.getElementById("birdList").innerHTML = `<label>No observations have been recorded on this date</label>`;
+                document.getElementById("pointLocationsList").innerHTML = `<label>No observations have been recorded on this date</label>`;
+                document.getElementById("pointNamesList").innerHTML = `<label>No observations have been recorded on this date</label>`;
             }
             break;
-        case "birds":
+        case "pointNames":
             species = [];
             data.forEach(observation => {
                 var idSpecies = observation.sciname.replace(" ", "").toLowerCase();
                 if(!species.includes(idSpecies) && observation.value > 0){
                     species.push(idSpecies);
-                    document.getElementById("birdList").innerHTML += `<label>
-                                                                 <input type="checkbox" id="${idSpecies}" name="birds" class="check_birds" \> ${observation.sciname}
+                    document.getElementById("pointNamesList").innerHTML += `<label>
+                                                                 <input type="checkbox" id="${idSpecies}" name="pointNames" class="check_pointNames" \> ${observation.sciname}
                                                                  <span class="checkmark"></span>
                                                                  </label>`;
                 }
             });
             if (species.length < 1) {
-                document.getElementById("birdList").innerHTML = `<label>No observations have been recorded on this date</label>`;
+                document.getElementById("pointNamesList").innerHTML = `<label>No observations have been recorded on this date</label>`;
             }
             break;
-        case "zones":
+        case "pointLocations":
             regions = [];
             data.forEach(observation => {
                 var idRegion = observation.idubication.toLowerCase();
                 if(!regions.includes(idRegion) && observation.value > 0){
                     regions.push(idRegion);
-                    document.getElementById("zoneList").innerHTML += `<label>
-                                                                 <input type="checkbox" id="${idRegion}" name="zones" class="check_zones" \> ${observation.ubication}
+                    document.getElementById("pointLocationsList").innerHTML += `<label>
+                                                                 <input type="checkbox" id="${idRegion}" name="pointLocations" class="check_pointLocations" \> ${observation.ubication}
                                                                  <span class="checkmark"></span>
                                                                  </label>`;
                 }
             });
             if (regions.length < 1) {
-                document.getElementById("zoneList").innerHTML = `<label>No observations have been recorded on this date</label>`;
+                document.getElementById("pointLocationsList").innerHTML = `<label>No observations have been recorded on this date</label>`;
             }
             break;
     }
 }
-async function setZoneList(map, markers, regionCode, date, speciesName) {
+async function setPointLocationsList(map, markers, regionCode, date, pointNames) {
     var regions = [];
-    var data = await getAllBirdsInfo(map, markers, regionCode, date);
+    var data = await getAllMainLayersInfo(map, markers, regionCode, date);
     data.forEach(observation => {
-        if(observation.sciname.toLowerCase() === speciesName.toLowerCase() && observation.value > 0){
+        if(observation.sciname.toLowerCase() === pointNames.toLowerCase() && observation.value > 0){
             var idRegion = observation.idubication.toLowerCase();
             if(!regions.includes(idRegion)){
                 regions.push(idRegion);
-                document.getElementById("zoneListLateral").innerHTML += `<label>
-                                                                 <input type="checkbox" id="${idRegion}" name="zones" class="check_zones" \> ${observation.ubication}
+                document.getElementById("pointLocationsListLateral").innerHTML += `<label>
+                                                                 <input type="checkbox" id="${idRegion}" name="pointLocations" class="check_pointLocations" \> ${observation.ubication}
                                                                  <span class="checkmark"></span>
                                                                  </label>`;
             }
         }
     });
     if (regions.length < 1) {
-        document.getElementById("zoneListLateral").innerHTML = `<label>No observations have been recorded on this date</label>`;
+        document.getElementById("pointLocationsListLateral").innerHTML = `<label>No observations have been recorded on this date</label>`;
     }
 
 }
@@ -478,10 +476,10 @@ async function setZoneList(map, markers, regionCode, date, speciesName) {
 // ----------------------------------------------------------------------------------------------------------------------------
 
 // Names and Date
-function getSpeciesName(){
+function getPointNames(){
     const value = window.location.pathname.split("/")[2].split("_");
-    const speciesName = value[0] + " " + value[1];
-    return speciesName;
+    const pointNames = value[0] + " " + value[1];
+    return pointNames;
 }
 function getStartDate(months) {
     let currentDate = new Date();
@@ -506,25 +504,25 @@ function getDate(date) {
     }
     return startDate;
 }
-async function updateDate(map, markers, markersSensors, regionCode, date, type) {
+async function updateDate(map, markers, markersSecondaryLayer, regionCode, date, type) {
     markers.clearLayers();
-    markersSensors.clearLayers();
+    markersSecondaryLayer.clearLayers();
 
-    var layer = "";
-    getSensorsInfo(map, markersSensors, date, layer);
+    let layer = "";
+    getLayerInfo(map, markersSecondaryLayer, date, layer);
 
     switch (type) {
         case "general":
-            document.getElementById("birdList").innerHTML = "";
-            document.getElementById("zoneList").innerHTML = "";
-            await getAllBirds(map, markers, regionCode, date);
-            setLists(map, markers, regionCode, date, "birds-zones");
+            document.getElementById("pointNamesList").innerHTML = "";
+            document.getElementById("pointLocationsList").innerHTML = "";
+            await getAllMainLayers(map, markers, regionCode, date);
+            setLists(map, markers, regionCode, date, "pointNames-pointLocations");
             break;
         case "specific":
-            var speciesName = getSpeciesName();
-            document.getElementById("zoneListLateral").innerHTML = "";
-            getBirds(map, markers, regionCode, date, speciesName);
-            setZoneList(map, markers, regionCode, date, speciesName);
+            var pointNames = getPointNames();
+            document.getElementById("pointLocationsListLateral").innerHTML = "";
+            getMainLayer(map, markers, regionCode, date, pointNames);
+            setPointLocationsList(map, markers, regionCode, date, pointNames);
             break;
     }
 
@@ -534,26 +532,26 @@ async function updateDate(map, markers, markersSensors, regionCode, date, type) 
 
 // Draw Map
 async function uptadeMarkers(map, markers, regionCode, date, type) {
-    var selectedSpecies = Array.from(document.querySelectorAll('input.check_birds:checked'))
+    var selectedSpecies = Array.from(document.querySelectorAll('input.check_pointNames:checked'))
     .map((checkbox) => checkbox.id);
-    var selectedZones = Array.from(document.querySelectorAll('input.check_zones:checked'))
+    var selectedZones = Array.from(document.querySelectorAll('input.check_pointLocations:checked'))
     .map((checkbox) => checkbox.id);
 
     if (selectedSpecies.length > 0 && selectedZones.length > 0) {
-        type = "zones-birds";
+        type = "pointLocations-pointNames";
     } else if (selectedSpecies.length < 1 && selectedZones.length < 1 && type != "specific-zones") {
-        type = "limpiar";
+        type = "clean";
     }
 
     switch (type) {
-        case "birds":
-            var dataBirds = await getAllBirdsInfo(map, markers, regionCode, date);
+        case "pointNames":
+            var dataPoints = await getAllMainLayersInfo(map, markers, regionCode, date);
             var regionCodes = [];
             var speciesIds = [];
 
             if (selectedSpecies.length > 0) {
                 markers.clearLayers();
-                dataBirds.forEach(observation => {
+                dataPoints.forEach(observation => {
                     for (const selectedSpecie of selectedSpecies) {
                         if (observation.sciname.toLowerCase().replace(" ", "") === selectedSpecie && observation.value > 0) {
                             if (!speciesIds.includes(observation.sciname)) {
@@ -565,18 +563,18 @@ async function uptadeMarkers(map, markers, regionCode, date, type) {
                         }
                     }
                 });
-                document.getElementById("zoneList").innerHTML = "";
+                document.getElementById("pointLocationsList").innerHTML = "";
                 for (var i=0; i<speciesIds.length; i++) {
-                    getBirds(map, markers, regionCodes, date, speciesIds[i]);
+                    getMainLayer(map, markers, regionCodes, date, speciesIds[i]);
                 }
-                setLists(map, markers, regionCodes, date, "zones");
+                setLists(map, markers, regionCodes, date, "pointLocations");
             } else {
                 markers.clearLayers();
-                uptadeMarkers(map, markers, regionCode, date, "zones");
+                uptadeMarkers(map, markers, regionCode, date, "pointLocations");
             }
             break;
-        case "zones":
-            var dataZones = await getAllBirdsInfo(map, markers, regionCode, date);
+        case "pointLocations":
+            var dataZones = await getAllMainLayersInfo(map, markers, regionCode, date);
             var regionCodeIds = [];
 
             if (selectedZones.length > 0) {
@@ -590,20 +588,20 @@ async function uptadeMarkers(map, markers, regionCode, date, type) {
                         }
                     }
                 });
-                document.getElementById("birdList").innerHTML = "";
-                await getAllBirds(map, markers, regionCodeIds, date);
-                setLists(map, markers, regionCodeIds, date, "birds");
+                document.getElementById("pointNamesList").innerHTML = "";
+                await getAllMainLayers(map, markers, regionCodeIds, date);
+                setLists(map, markers, regionCodeIds, date, "pointNames");
             } else {
                 markers.clearLayers();
-                uptadeMarkers(map, markers, regionCode, date, "birds");
+                uptadeMarkers(map, markers, regionCode, date, "pointNames");
             }
             break;
         case "specific-zones":
-            var selectedZonesEspe = Array.from(document.querySelectorAll("input.check_zones:checked"))
+            var selectedZonesEspe = Array.from(document.querySelectorAll("input.check_pointLocations:checked"))
             .map((checkbox) => checkbox.id);
-            var dataZonesEspe = await getAllBirdsInfo(map, markers, regionCode, date);
+            var dataZonesEspe = await getAllMainLayersInfo(map, markers, regionCode, date);
             var regionCodeIdsEspe = [];
-            var speciesName = getSpeciesName();
+            var pointNames = getPointNames();
 
             if (selectedZonesEspe.length > 0) {
                 markers.clearLayers();
@@ -616,14 +614,14 @@ async function uptadeMarkers(map, markers, regionCode, date, type) {
                         }
                     }
                 });
-                getBirds(map, markers, regionCodeIdsEspe, date, speciesName);
+                getMainLayer(map, markers, regionCodeIdsEspe, date, pointNames);
             } else {
                 markers.clearLayers();
-                getBirds(map, markers, regionCode, date, speciesName);
+                getMainLayer(map, markers, regionCode, date, pointNames);
             }
             break;
-        case "zones-birds":
-            var data = await getAllBirdsInfo(map, markers, regionCode, date);
+        case "pointLocations-pointNames":
+            var data = await getAllMainLayersInfo(map, markers, regionCode, date);
             var regions = [];
             markers.clearLayers();
             data.forEach(observation => {
@@ -636,13 +634,13 @@ async function uptadeMarkers(map, markers, regionCode, date, type) {
                 }
             });
             break;
-        case "limpiar":
+        case "clean":
             markers.clearLayers();
-            document.getElementById("birdList").innerHTML = "";
-            document.getElementById("zoneList").innerHTML = "";
-            await getAllBirds(map, markers, regionCode, date);
-            setLists(map, markers, regionCode, date, "birds");
-            setLists(map, markers, regionCode, date, "birds-zones");
+            document.getElementById("pointNamesList").innerHTML = "";
+            document.getElementById("pointLocationsList").innerHTML = "";
+            await getAllMainLayers(map, markers, regionCode, date);
+            setLists(map, markers, regionCode, date, "pointNames");
+            setLists(map, markers, regionCode, date, "pointNames-pointLocations");
             break;
     }
 }
@@ -699,7 +697,7 @@ function addLayerPoint(map, markers, observation){
         fillOpacity: 1,
     });
     var popupContent = "";
-    if (pathname.includes(marMenor_pathname)) { // General
+    if (pathname.includes(specific_pathname)) { // General
         popupContent += "<strong>Species:</strong> " + observation.sciname + "<br>" +
             "<strong>Last sighting date:</strong> " + observation.date + "<br>" +
             "<strong>Number of birds:</strong> " + observation.value + "<br>" +
@@ -721,7 +719,7 @@ function addLayerPoint(map, markers, observation){
     markers.addLayer(observationPoint);
     map.addLayer(markers);
 }
-function addLayerSensor(map, markers, observation){
+function addSecondaryLayer(map, markers, observation){
     let color = "";
     let url = "";
     color = "black";
@@ -739,13 +737,13 @@ function addLayerSensor(map, markers, observation){
         "<strong>Number of registers:</strong> " + observation.total + "<br>" +
         "<strong>Average value:</strong> " + observation.media + " " + observation.units + "<br>" +
         "<strong>Coordinates:</strong> <br> Latitude: " + observation.lat + ", Longitude: " + observation.long + "<br>" +
-        "<a href='#' id='registers'>See more</a>";
+        "<a href='#' id='showRegisters'>See more</a>";
     observationPoint.bindPopup(popupContent);
 
     observationPoint.on("click", function() {
         observationPoint.openPopup();
-        var registers = document.getElementById("registers");
-        registers.addEventListener("click", function() {
+        var showRegisters = document.getElementById("showRegisters");
+        showRegisters.addEventListener("click", function() {
             showModalMessage(observation);
         });
     });
@@ -781,38 +779,38 @@ function addLayerLegend(map, marMenorJS, marMenor){
     return legend;
 }
 function addVisualGuide() {
-    document.getElementById("birdwatchingList").innerHTML += `<div class="birdwatching">
-                                                                      <div class="birdwatchingItem red"></div>
-                                                                      <div class="birdwatchingLabel">
-                                                                          <div class="birdwatchingTitle">15+</div>
+    document.getElementById("mainLayerList").innerHTML += `<div class="mainLayer">
+                                                                      <div class="mainLayerItem red"></div>
+                                                                      <div class="mainLayerLabel">
+                                                                          <div class="mainLayerTitle">15+</div>
                                                                       </div>
                                                                   </div>
 
-                                                                  <div class="birdwatching">
-                                                                      <div class="birdwatchingItem orange"></div>
-                                                                      <div class="birdwatchingLabel">
-                                                                          <div class="birdwatchingTitle">10 - 15</div>
+                                                                  <div class="mainLayer">
+                                                                      <div class="mainLayerItem orange"></div>
+                                                                      <div class="mainLayerLabel">
+                                                                          <div class="mainLayerTitle">10 - 15</div>
                                                                       </div>
                                                                   </div>
 
-                                                                  <div class="birdwatching">
-                                                                      <div class="birdwatchingItem yellow"></div>
-                                                                      <div class="birdwatchingLabel">
-                                                                          <div class="birdwatchingTitle">5 - 10</div>
+                                                                  <div class="mainLayer">
+                                                                      <div class="mainLayerItem yellow"></div>
+                                                                      <div class="mainLayerLabel">
+                                                                          <div class="mainLayerTitle">5 - 10</div>
                                                                       </div>
                                                                   </div>
 
-                                                                  <div class="birdwatching">
-                                                                      <div class="birdwatchingItem green"></div>
-                                                                      <div class="birdwatchingLabel">
-                                                                          <div class="birdwatchingTitle">2 - 5</div>
+                                                                  <div class="mainLayer">
+                                                                      <div class="mainLayerItem green"></div>
+                                                                      <div class="mainLayerLabel">
+                                                                          <div class="mainLayerTitle">2 - 5</div>
                                                                       </div>
                                                                   </div>
 
-                                                                  <div class="birdwatching">
-                                                                      <div class="birdwatchingItem gray"></div>
-                                                                      <div class="birdwatchingLabel">
-                                                                          <div class="birdwatchingTitle">1 - 2</div>
+                                                                  <div class="mainLayer">
+                                                                      <div class="mainLayerItem gray"></div>
+                                                                      <div class="mainLayerLabel">
+                                                                          <div class="mainLayerTitle">1 - 2</div>
                                                                       </div>
                                                                   </div>`;
 
@@ -829,14 +827,14 @@ function deselectHeatMap(map) {
     });
 }
 async function getHeatMapCoordinates(map, markers, regionCode, date, type) {
-    var data = await getAllBirdsInfo(map, markers, regionCode, date);
+    var data = await getAllMainLayersInfo(map, markers, regionCode, date);
     const total = {};
     switch (type) {
         case "specific":
-            var speciesName = getSpeciesName();
+            var pointNames = getPointNames();
             data.forEach(observation => {
                 for (const region of regionCode) {
-                    if (observation.sciname === speciesName && observation.idubication === region && observation.value > 0) {
+                    if (observation.sciname === pointNames && observation.idubication === region && observation.value > 0) {
                         if (!total[region]) {
                             total[region] = { total: 0, coordenadas: { lat: observation.lat, lng: observation.long } };
                         } else {
@@ -896,8 +894,8 @@ async function addHeatMap(map, markers, regionCode, date, type) {
 
 // ----------------------------------------------------------------------------------------------------------------------------
 
-// Birdwatching
-function getBirds(map, markers, regionCode, date, speciesName) {
+// Main Layer
+function getMainLayer(map, markers, regionCode, date, pointNames) {
     const apiUrl = 'http://localhost:8080/ebird';
     let startDate = getDate(date);
 
@@ -922,7 +920,7 @@ function getBirds(map, markers, regionCode, date, speciesName) {
                 regionCode.forEach(region => {
                     validObservations.forEach(observation => {
                         if (region == observation.idubication) {
-                            if(observation.sciname.toLowerCase() === speciesName.toLowerCase() && observation.value > 0){
+                            if(observation.sciname.toLowerCase() === pointNames.toLowerCase() && observation.value > 0){
                                 addLayerPoint(map, markers, observation);
                             }
                         }
@@ -936,7 +934,7 @@ function getBirds(map, markers, regionCode, date, speciesName) {
             console.error('Request Error:', error);
         });
 }
-function getAllBirds(map, markers, regionCode, date) {
+function getAllMainLayers(map, markers, regionCode, date) {
     const apiUrl = 'http://localhost:8080/ebird';
     let startDate = getDate(date);
 
@@ -973,7 +971,7 @@ function getAllBirds(map, markers, regionCode, date) {
             console.error('Request Error:', error);
         });
 }
-async function getAllBirdsInfo(map, markers, regionCode, date) {
+async function getAllMainLayersInfo(map, markers, regionCode, date) {
     const apiUrl = 'http://localhost:8080/ebird';
     let startDate = getDate(date);
     let allObservations = [];
@@ -1015,8 +1013,8 @@ async function getAllBirdsInfo(map, markers, regionCode, date) {
 
 // ----------------------------------------------------------------------------------------------------------------------------
 
-// Sensors
-async function getData(type, apiUrl, startDate) {
+// Secondary Layer
+async function getData(apiUrl, startDate) {
     try {
         const response = await fetch(apiUrl);
 
@@ -1043,16 +1041,17 @@ async function getData(type, apiUrl, startDate) {
         console.error('Request Error:', error);
     }
 }
-async function getSensorsInfo(map, markers, date, layer) {
+async function getLayerInfo(map, markers, date, layer) {
     const apiUrl = "http://localhost:8080/" + layer;
     var startDate = getDate(date);
-    var data = await getData("sensors", apiUrl, startDate);
-    getSensors(map, markers, data);
+    var data = await getData(apiUrl, startDate);
+    getSecondaryLayer(map, markers, data);
 }
-function getSensors(map, markers, data) {
+function getSecondaryLayer(map, markers, data) {
     let total = 0, media = 0;
-    let name = "", lastDate = "", lat = "", long = "", units = "", sensor = "", altitude = "";
+    let name = "", lastDate = "", lat = "", long = "", units = "", others = "";
     let allRegisters = [];
+    console.log(data);
     data.forEach(register => {
         if (register) {
             total++;
@@ -1064,8 +1063,7 @@ function getSensors(map, markers, data) {
             lat = register.lat;
             long = register.long;
             units = register.units;
-            sensor = register.sensor;
-altitude = register.altitude;
+            others = register.others;
             allRegisters.push({
                 name: name,
                 id: register.locationId,
@@ -1073,8 +1071,7 @@ altitude = register.altitude;
                 long: long,
                 value: register.value,
                 units: units,
-                sensor: register.sensor,
-altitude: register.altitude,
+                others: register.others,
                 date: register.date
             });
         }
@@ -1087,7 +1084,7 @@ altitude: register.altitude,
         date: lastDate,
         all: allRegisters
     };
-    addLayerSensor(map, markers, observation);
+    addSecondaryLayer(map, markers, observation);
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------
@@ -1120,10 +1117,9 @@ function showModalMessage(values) {
 function addRegisters(values) {
     var registers = "";
     var classname = "darkBackground";
-    console.log(values.all);
     for (let i in values.all) {
         if(i == 0){
-           document.getElementById("columnRegisters").innerHTML = "<div class='rows main'><div>Sensor</div><div class='idubication'>Id</div><div>Latitude</div><div>Longitude</div><div>Value</div><div>Units</div><div>Date</div><div>sensor</div><div>altitude</div></div>";
+           document.getElementById("columnRegisters").innerHTML = "<div class='rows main'><div>Name</div><div class='idubication'>Id</div><div>Latitude</div><div>Longitude</div><div>Value</div><div>Units</div><div>Date</div><div>Others</div></div>";
         }
         if(i%2 == 0){
             classname = "clearBackground";
@@ -1132,9 +1128,8 @@ function addRegisters(values) {
             classname = "darkBackground";
         }
         let value = values.all[i];
-        registers += "<div class='rows " + classname + "'><div>" + value.name + "</div><div class='idubication'>" + value.id + "</div><div>" + value.lat + "</div><div>" + value.long + "</div><div>" + value.value + "</div><div>" + value.units + "</div><div>" + value.date + "</div><div>" + value.sensor + "</div><div>" + value.altitude + "</div></div>";
+        registers += "<div class='rows " + classname + "'><div>" + value.name + "</div><div class='idubication'>" + value.id + "</div><div>" + value.lat + "</div><div>" + value.long + "</div><div>" + value.value + "</div><div>" + value.units + "</div><div>" + value.date + "</div><div>" + value.others + "</div></div>";
     }
     document.getElementById("registers").innerHTML = registers;
-
 }
 // ----------------------------------------------------------------------------------------------------------------------------

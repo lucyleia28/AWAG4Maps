@@ -149,11 +149,18 @@ public class AWAG4Maps {
 	// NUEVO
 	public static boolean csv2xmi = false;
 	public static boolean csv2wa = false;
+	public static String id = "id";
+	public static String lat = "lat";
+	public static String lon = "long";
+	public static String value = "value";
+	public static String units = "units";
+	public static String date = "date";
+	public static boolean others = false;
+	public static String[] firstRow;
 	
 	public static void main(String[] args) {
 		if(args.length > 0) {
 			switch (args[0]) {
-				// ORIGINAL -> csv2api(args)
 				case "csv2xmi" : csv2xmi(args);
 					break;
 				case "csv2wa" : csv2wa(args);
@@ -167,7 +174,7 @@ public class AWAG4Maps {
 		}       
 	}
 	
-	// Formatea los parametros que se le pasan: nombre csv, nombre del modelo, etc
+	// Formatea los parametros que se le pasan: nombre csv, nombre del modelo, y campos deseados (id, lat, long, value, units, date)
 	private static void csv2xmi(String[] args) {
 		System.out.println("csv2xmi");
 
@@ -213,6 +220,27 @@ public class AWAG4Maps {
 			modelFileName = args[2];
 			mapXMIFileName = args[3];
 		}
+		else if(args.length == 10) { // columnas especificadas
+			fileName = args[1];
+			if(fileName.contains("/")) {
+				fileUrl = fileName;
+				fileName = fileName.split("/")[fileName.split("/").length-1];
+			}
+			if(fileName.contains(".csv")) {
+				fileName = fileName.replace(".csv", "");
+			}
+			desiredFileName = fileName;
+			modelFileName = args[2];
+			mapXMIFileName = args[3];
+			// id, lat, long, value, units, date
+			id = args[4];
+			lat = args[5];
+			lon = args[6];
+			value = args[7];
+			units = args[8];
+			date = args[9];
+			others = true;
+		}
 
 		mainFolderName = "AWAG4Maps_" + cleanString(desiredFileName);
 
@@ -220,7 +248,7 @@ public class AWAG4Maps {
         System.out.println("Automatic XMI Generation finished!");
 	}
 	
-	// Formatea los parametros que se le pasan: nombre csv, nombre del modelo, etc
+	// Formatea los parametros que se le pasan: nombre csv, nombre del modelo, y campos deseados (id, lat, long, value, units, date)
 	private static void csv2wa(String[] args) {
 			System.out.println("csv2wa");
 
@@ -266,12 +294,33 @@ public class AWAG4Maps {
 				modelFileName = args[2];
 				mapXMIFileName = args[3];
 			}
+			else if(args.length > 4 && args.length <= 10) { // columnas especificadas
+				fileName = args[1];
+				if(fileName.contains("/")) {
+					fileUrl = fileName;
+					fileName = fileName.split("/")[fileName.split("/").length-1];
+				}
+				if(fileName.contains(".csv")) {
+					fileName = fileName.replace(".csv", "");
+				}
+				desiredFileName = fileName;
+				modelFileName = args[2];
+				mapXMIFileName = args[3];
+				// id, lat, long, value, units, date
+				id = args[4];
+				lat = args[5];
+				lon = args[6];
+				value = args[7];
+				units = args[8];
+				date = args[9];
+				others = true;
+			}
 
 			mainFolderName = "AWAG4Maps_" + cleanString(desiredFileName);
 
 			convertCSVIntoXMI();
+			addPropertiesToATL();
 			table2mapModelTransformation();
-			// model2modelTransformation();
 		    convertXMIintoJSON();
 		    generateServer();
 	        addServerDependencies();
@@ -279,6 +328,7 @@ public class AWAG4Maps {
 	        generateVisualisation();
 	        runApi();     
 	        //TODO:create web augmenter
+	        generateWebAugmenter();
 	                
 	        System.out.println("Automatic API and Web Augmenter Generation finished!");
 		}
@@ -436,6 +486,7 @@ public class AWAG4Maps {
                 	// Cleaning
                 	if(i==0) {
                 		line = cleanString(line);
+                		firstRow = line.split(csvSplitBy);
                 	} else {
                 		line = cleanStringInvalidChars(line);
                 	}
@@ -513,6 +564,121 @@ public class AWAG4Maps {
 		}
 	}
 	
+	private static void addPropertiesToATL() {
+        String lines = "";
+        String[] row = firstRow;
+        BufferedReader br = null;
+        
+        try {
+			Files.copy(AWAG4Maps.class.getResourceAsStream(fileSeparatorForResources + resFolderName + 
+					fileSeparatorForResources + "transformator" + fileSeparatorForResources + "TableToMap.atl"), 
+					new File(mainFolderName + File.separator + tempFolderName + File.separator + "TableToMap.atl").toPath(), 
+					StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        File archivoAEditar = new File(mainFolderName + File.separator + tempFolderName + File.separator + "TableToMap.atl");
+        if (!archivoAEditar.exists()) {
+        	System.out.println("No existe el archivo ATL " + mainFolderName + File.separator + tempFolderName + File.separator + "TableToMap.atl");
+        }
+        else {
+        	System.out.println("Encontrado el archivo ATL");
+			try {
+				br = new BufferedReader(new FileReader(mainFolderName + File.separator + tempFolderName + File.separator + "TableToMap.atl"));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+	            System.out.println(e.getMessage());
+			}
+	        String line = "";
+	        try {
+				while ((line = br.readLine()) != null) {
+					if (line.contains("placeholder")) {
+					    // Columnas especificadas por parametro
+					    if (others) {
+					    	String[] others = new String[]{id, lat, lon, value, units, date};
+					    	for (int i = 0; i < others.length; i++) {
+						    	String replaceText = others[i] + " <- Row.getPointValues('" + others[i] + "')";
+						        lines += line.replace("placeholder", replaceText);
+						        if (i != others.length - 1) {
+						            lines += ",\n";
+						        }
+					    	}
+					    }
+					    else {
+					    	// No se especifican las columnas por parametro y se ponen las por defecto
+					    	String replaceText = "id <- Row.getPointValues('id'),\n lat <- Row.getPointValues('lat'),\n long <- Row.getPointValues('long'),\n value <- Row.getPointValues('value'),\n units <- Row.getPointValues('units'),\n date <- Row.getPointValues('date')";
+					        lines += line.replace("placeholder", replaceText);
+					    }
+					    if (row.length > 0 && row.length > 6) { // No esta vacia y tiene mas columnas a parte de las obligatorias
+					    	lines += ",\n";
+					    	int totalOthers = row.length - 6, cont = 0;
+					    	String[] others = new String[totalOthers];
+					    	System.out.println(totalOthers);
+					    	for (int i = 0; i < row.length; i++) {
+							    // Resto de columnas
+							    if (!(row[i].equals(id)) && !(row[i].equals(lat)) && !(row[i].equals(lon)) && !(row[i].equals(value)) && !(row[i].equals(units)) && !(row[i].equals(date))) {
+							        String replaceText = row[i] + " <- Row.getPointValues('" + row[i] + "')";
+							        others[cont] = replaceText;
+							        cont ++;
+							    }
+							}
+					    	for (int i = 0; i < totalOthers; i++) {
+					    		lines += line.replace("placeholder", others[i]);
+					    		if (i != totalOthers - 1) {
+						            lines += ",\n";
+						        } else {
+						            lines += "\n";
+						        }
+					    	}
+					    }
+					    else {
+					    	lines += line + "\n";
+					    }
+					} else {
+					    lines += line + "\n";
+					}
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+	            System.out.println(e.getMessage());
+			} catch (NullPointerException e) {
+	            System.out.println(e.getMessage());
+			}
+	        try {
+				br.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+	            System.out.println(e.getMessage());
+			}catch (NullPointerException e) {
+	            System.out.println(e.getMessage());
+			}
+	        
+	        try (BufferedWriter writer = new BufferedWriter(new FileWriter(mainFolderName + File.separator + tempFolderName + File.separator + "TableToMap.atl"))) {
+	            writer.write(lines);
+	        } catch (IOException e) {
+	            System.out.println(e.getMessage());
+	        }
+	        
+	        PrintWriter writer = null;
+			try {
+
+				writer = new PrintWriter(mainFolderName + File.separator + tempFolderName + File.separator + "TableToMap.atl", "UTF-8");
+				writer.println(lines);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				writer.close();				
+			}
+	        
+        }
+		
+	}
+	
 	private static void table2mapModelTransformation() {
 		try {
 			System.out.println(fileSeparatorForResources + resFolderName 
@@ -525,10 +691,10 @@ public class AWAG4Maps {
             		fileSeparatorForResources + "metamodels" + fileSeparatorForResources + "Maps_MetaModel.ecore"), 
             		new File(mainFolderName + File.separator + tempFolderName + File.separator + "Maps_MetaModel.ecore").toPath(), 
             		StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(AWAG4Maps.class.getResourceAsStream(fileSeparatorForResources + resFolderName + 
+            /*Files.copy(AWAG4Maps.class.getResourceAsStream(fileSeparatorForResources + resFolderName + 
             		fileSeparatorForResources + "transformator" + fileSeparatorForResources + "TableToMap.atl"), 
             		new File(mainFolderName + File.separator + tempFolderName + File.separator + "TableToMap.atl").toPath(), 
-            		StandardCopyOption.REPLACE_EXISTING);
+            		StandardCopyOption.REPLACE_EXISTING);*/
             Files.copy(AWAG4Maps.class.getResourceAsStream(fileSeparatorForResources + resFolderName + 
             		fileSeparatorForResources + "transformator" + fileSeparatorForResources
             		+ "TableToMap.emftvm"), 
@@ -544,11 +710,11 @@ public class AWAG4Maps {
 		String mapsModel = mainFolderName + fileSeparatorForResources + tempFolderName + fileSeparatorForResources + mapXMIFileName;
 		String folder = mainFolderName + fileSeparatorForResources + tempFolderName + fileSeparatorForResources;
 
-		System.out.println("tableEcore" + tableEcore);
-		System.out.println("tableModel" + tableModel);
-		System.out.println("mapsEcore" + mapsEcore);
-		System.out.println("mapsModel" + mapsModel);
-		System.out.println("folder" + folder);
+		System.out.println("tableEcore: " + tableEcore);
+		System.out.println("tableModel: " + tableModel);
+		System.out.println("mapsEcore: " + mapsEcore);
+		System.out.println("mapsModel: " + mapsModel);
+		System.out.println("folder: " + folder);
 		
 		Launcher launcher = new Launcher();
 		launcher.runATL(tableEcore, "MM", 
@@ -1351,6 +1517,183 @@ public class AWAG4Maps {
 	    }
 
 		System.out.println("Server listening in http://localhost:8080/v1/");
+		
+	}
+	
+	private static void generateWebAugmenter() {
+        String lines = "";
+        String[] row = firstRow;
+        BufferedReader br = null;
+        
+        try {
+			Files.copy(AWAG4Maps.class.getResourceAsStream(fileSeparatorForResources + resFolderName + 
+					fileSeparatorForResources + "webAugmenter" + fileSeparatorForResources + "webAugmenter.js"), 
+					new File(mainFolderName + File.separator + tempFolderName + File.separator + "webAugmenter.js").toPath(), 
+					StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        File archivoAEditar = new File(mainFolderName + File.separator + tempFolderName + File.separator + "webAugmenter.js");
+        if (!archivoAEditar.exists()) {
+        	System.out.println("No existe el archivo JS " + mainFolderName + File.separator + tempFolderName + File.separator + "webAugmenter.js");
+        }
+        else {
+        	System.out.println("Encontrado el archivo JS");
+			try {
+				br = new BufferedReader(new FileReader(mainFolderName + File.separator + tempFolderName + File.separator + "webAugmenter.js"));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+	            System.out.println(e.getMessage());
+			}
+	        String line = "";
+	        try {
+				while ((line = br.readLine()) != null) {
+					if (line.contains("others = \"\";")) {
+					    if (row.length > 0 && row.length > 6) { // No esta vacia y tiene mas columnas a parte de las obligatorias
+					    	int totalOthers = row.length - 6, cont = 0;
+					    	String[] others = new String[totalOthers];
+					    	for (int i = 0; i < row.length; i++) {
+							    // Resto de columnas
+							    if (!(row[i].equals(id)) && !(row[i].equals(lat)) && !(row[i].equals(lon)) && !(row[i].equals(value)) && !(row[i].equals(units)) && !(row[i].equals(date))) {
+							    	String replaceText = row[i] + " = \"\"";
+							        others[cont] = replaceText;
+							        cont ++;
+							    }
+							}
+					    	String aux = "";
+					    	for (int i = 0; i < totalOthers; i++) {
+					    		aux += others[i];
+					    		if (i != totalOthers - 1) {
+						            aux += ", ";
+						        }
+					    		else {
+					    			aux += ";";
+					    		}
+					    	}
+				    		lines += line.replace("others = \"\";", aux) + "\n";
+					    }					    
+					}
+					else if (line.contains("let layer = \"\";")) {
+						lines += line.replace("let layer = \"\";", "let layer = \"" + desiredFileName + "\"") + ";\n";
+					}
+					else if (line.contains("others = register.others;")) {
+						if (row.length > 0 && row.length > 6) { // No esta vacia y tiene mas columnas a parte de las obligatorias
+					    	int totalOthers = row.length - 6, cont = 0;
+					    	String[] others = new String[totalOthers];
+					    	for (int i = 0; i < row.length; i++) {
+							    // Resto de columnas
+							    if (!(row[i].equals(id)) && !(row[i].equals(lat)) && !(row[i].equals(lon)) && !(row[i].equals(value)) && !(row[i].equals(units)) && !(row[i].equals(date))) {
+							    	String replaceText = row[i] + " = register." + row[i] + ";\n";
+							        others[cont] = replaceText;
+							        cont ++;
+							    }
+							}
+					    	String aux = "";
+					    	for (int i = 0; i < totalOthers; i++) {
+					    		aux += others[i];
+					    	}
+				    		lines += line.replace("others = register.others;", aux);
+					    }
+					}
+					else if (line.contains("others: register.others,")) {
+						if (row.length > 0 && row.length > 6) { // No esta vacia y tiene mas columnas a parte de las obligatorias
+					    	int totalOthers = row.length - 6, cont = 0;
+					    	String[] others = new String[totalOthers];
+					    	for (int i = 0; i < row.length; i++) {
+							    // Resto de columnas
+							    if (!(row[i].equals(id)) && !(row[i].equals(lat)) && !(row[i].equals(lon)) && !(row[i].equals(value)) && !(row[i].equals(units)) && !(row[i].equals(date))) {
+							    	String replaceText = row[i] + ": register." + row[i] + ",\n";
+							        others[cont] = replaceText;
+							        cont ++;
+							    }
+							}
+					    	String aux = "";
+					    	for (int i = 0; i < totalOthers; i++) {
+					    		aux += others[i];
+					    	}
+				    		lines += line.replace("others: register.others,", aux);
+					    }
+					}
+					else if (line.contains("<div>Others</div></div>\";")) {
+						if (row.length > 0 && row.length > 6) { // No esta vacia y tiene mas columnas a parte de las obligatorias
+					    	int totalOthers = row.length - 6, cont = 0;
+					    	String[] others = new String[totalOthers];
+					    	for (int i = 0; i < row.length; i++) {
+							    // Resto de columnas
+							    if (!(row[i].equals(id)) && !(row[i].equals(lat)) && !(row[i].equals(lon)) && !(row[i].equals(value)) && !(row[i].equals(units)) && !(row[i].equals(date))) {
+							    	String replaceText = "<div>" + row[i].substring(0, 1).toUpperCase() + row[i].substring(1) + "</div>";
+							        others[cont] = replaceText;
+							        cont ++;
+							    }
+							}
+					    	String aux = "";
+					    	for (int i = 0; i < totalOthers; i++) {
+					    		aux += others[i];
+					    	}
+				    		lines += line.replace("<div>Others</div></div>\";", aux) + "</div>\";\n";
+					    }	
+					}
+					else if (line.contains("<div>\" + value.others + \"</div></div>\";")) {
+						if (row.length > 0 && row.length > 6) { // No esta vacia y tiene mas columnas a parte de las obligatorias
+					    	int totalOthers = row.length - 6, cont = 0;
+					    	String[] others = new String[totalOthers];
+					    	for (int i = 0; i < row.length; i++) {
+							    // Resto de columnas
+							    if (!(row[i].equals(id)) && !(row[i].equals(lat)) && !(row[i].equals(lon)) && !(row[i].equals(value)) && !(row[i].equals(units)) && !(row[i].equals(date))) {
+							    	String replaceText = "<div>\" + value." + row[i] + " + \"</div>";
+							        others[cont] = replaceText;
+							        cont ++;
+							    }
+							}
+					    	String aux = "";
+					    	for (int i = 0; i < totalOthers; i++) {
+					    		aux += others[i];
+					    	}
+				    		lines += line.replace("<div>\" + value.others + \"</div></div>\";", aux) + "</div>\";\n";
+					    }
+					}
+					else {
+						lines += line + "\n";
+					}
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+	            System.out.println(e.getMessage());
+			} catch (NullPointerException e) {
+	            System.out.println(e.getMessage());
+			}
+	        try {
+				br.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+	            System.out.println(e.getMessage());
+			}catch (NullPointerException e) {
+	            System.out.println(e.getMessage());
+			}
+	        
+	        try (BufferedWriter writer = new BufferedWriter(new FileWriter(mainFolderName + File.separator + tempFolderName + File.separator + "webAugmenter.js"))) {
+	            writer.write(lines);
+	        } catch (IOException e) {
+	            System.out.println(e.getMessage());
+	        }
+	        
+	        PrintWriter writer = null;
+			try {
+
+				writer = new PrintWriter(mainFolderName + File.separator + tempFolderName + File.separator + "webAugmenter.js", "UTF-8");
+				writer.println(lines);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				writer.close();				
+			}
+	        
+        }
 		
 	}
 	

@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<maps:Maps xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:maps="platform:/resource/MetaModels/Map_MetaModel.ecore">
-  <layers name="birds">
-    <data lat="lat" long="long"/>
-    <data lat="390.037.778" long="-0.1608038"/>
-    <data lat="394.106.560" long="-0.3313772"/>
-    <data lat="393.250.341" long="-0.3104308"/>
-    <data lat="376.359.578" long="-0.7192612"/>
+<maps:Maps xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:maps="platform:/resource/TableToMap/MetaModels/Maps_MetaModel.ecore">
+  <layers name="temperature">
+    <points lat="lat" long="long" value="value" units="units" date="date"/>
+    <points lat="37.7094" long="-0.78552" value="22.85764" units="celsius" date="14/10/2022 9:00"/>
+    <points lat="37.7094" long="-0.78552" value="22.91506" units="celsius" date="14/10/2022 10:00"/>
+    <points lat="37.7094" long="-0.78552" value="22.98483" units="celsius" date="14/10/2022 11:00"/>
+    <points lat="37.7094" long="-0.78552" value="22.98373" units="celsius" date="14/10/2022 12:00"/>
+    <points lat="37.7094" long="-0.78552" value="23.05275" units="celsius" date="14/10/2022 13:00"/>
+    <points lat="37.7094" long="-0.78552" value="23.36021" units="celsius" date="14/10/2022 14:00"/>
+    <points lat="37.7094" long="-0.78552" value="23.32771" units="celsius" date="14/10/2022 15:00"/>
+    <points lat="37.7094" long="-0.78552" value="23.09013" units="celsius" date="14/10/2022 16:00"/>
+    <points lat="37.7094" long="-0.78552" value="23.4719" units="celsius" date="14/10/2022 17:00"/>
   </layers>
 </maps:Maps>

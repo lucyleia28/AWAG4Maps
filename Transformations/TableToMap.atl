@@ -1,5 +1,6 @@
+-- @atlcompiler emftvm
 -- @path MM=/TableToMap/MetaModels/Table_MetaModel.ecore
--- @path MM1=/TableToMap/MetaModels/Map_MetaModel.ecore
+-- @path MM1=/TableToMap/MetaModels/Maps_MetaModel.ecore
 
 
 module TableToMap;
@@ -10,24 +11,27 @@ rule Main {
 		Table: MM!Table
 	to
 		Maps: MM1!Maps ( 
-			layers <- objectLayer
+			layers <- Sequence{objectLayer}
 		),
 		objectLayer: MM1!Layer(
-			name <- Table.filename, -- file name // .eResource().getURI().lastSegment()
-			data <- Table.rows -> collect(e | thisModule.GetLatLong(e))
+			name <- Table.filename,
+			points <- Table.rows -> collect(e | thisModule.GetPoints(e))
 		)
 }
-lazy rule GetLatLong {
+lazy rule GetPoints {
 	from
 		Row: MM!Row
 	to
-		Data: MM1!Data (
-			lat <- Row.getLatLongValue('lat'),
-			long <- Row.getLatLongValue('long')
+		Point: MM1!Point (
+			lat <- Row.getPointValues('lat'),
+			long <- Row.getPointValues('long'),
+			value <- Row.getPointValues('value'),
+			units <- Row.getPointValues('units'),
+			date <- Row.getPointValues('date')
 		)
 }
 
-helper context MM!Row def: getLatLongValue(type: String): String =
+helper context MM!Row def: getPointValues(type: String): String =
 	let column: Integer = self.findCellPosition(type) in
 	if column >= 0 then
 		let cell: MM!Cell = self.cells -> get(column) in

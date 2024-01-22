@@ -23,11 +23,7 @@ lazy rule GetPoints {
 		Row: MM!Row
 	to
 		Point: MM1!Point (
-			lat <- Row.getPointValues('lat'),
-			long <- Row.getPointValues('long'),
-			value <- Row.getPointValues('value'),
-			units <- Row.getPointValues('units'),
-			date <- Row.getPointValues('date')
+			placeholder
 		)
 }
 
